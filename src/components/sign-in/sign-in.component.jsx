@@ -2,7 +2,7 @@ import React from 'react';
 import './sign-in.styles.scss';
 import FormInput from '../form-input/form-input.component';
 import CustomButton from '../custom-button/custom-button.component';
-import {signInWithGoogle} from '../../firebase/firebase.utils';
+import {auth, signInWithGoogle} from '../../firebase/firebase.utils';
 
 class SignIn extends React.Component {
     state = {
@@ -10,9 +10,17 @@ class SignIn extends React.Component {
         password: ''
     }
 
-    handleSubmit = (e) => {
+    handleSubmit = async (e) => {
         e.preventDefault();
-        this.setState({email:'', password: ''})
+        const {email, password} = this.state;
+        try {
+           await auth.signInWithEmailAndPassword(email, password);
+           this.setState({email:'', password: ''});
+        } catch(error) {
+            console.log('error wy=hile signing in' + error.message);
+        }
+        
+        
     }
 
     handleChange = (e) => {
@@ -27,12 +35,12 @@ class SignIn extends React.Component {
                 <span>Sign in with your eamil and password</span>
                 <form onSubmit={this.handleSubmit}>
                     <FormInput name="email" type="email" value={this.state.email} label="Email" handleChange={this.handleChange} required />
-                    {/* <label>Email</label> */}
                     <FormInput name="password" type="password" value={this.state.password} label="Password" handleChange={this.handleChange} required />
-                    {/* <label>Password</label> */}
+                    <div className='buttons'>
+                        <CustomButton type="submit"> Sign In </CustomButton>
+                        <CustomButton onClick={signInWithGoogle} isGoogleSignIn> Sign In With Google </CustomButton>
+                    </div>
 
-                    {/* <CustomButton type="submit"> Sign In </CustomButton> */}
-                    <CustomButton onClick={signInWithGoogle}> Sign In </CustomButton>
                 </form>
             </div>
         );
