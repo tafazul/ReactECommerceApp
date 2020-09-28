@@ -5,10 +5,10 @@ import { connect } from 'react-redux';
 import {ReactComponent as Logo} from '../../assets/crown.svg'; 
 import { Link } from 'react-router-dom';
 import {auth} from '../../firebase/firebase.utils';
+import CartIcon from '../cart-icon/cart-icon.component';
+import CartDropdown from '../cart-dropdown/cart-dropdown.component';
 
-const Header = ({currentUser}) => {
-    console.log('in header');
-    console.log(currentUser);
+const Header = ({currentUser, hideCartDropdown}) => {
     return (
         
         <div className='header'>
@@ -29,13 +29,23 @@ const Header = ({currentUser}) => {
                     :
                     <Link to="/signin">SIGN IN</Link>
                 }
+                <CartIcon />
+                
             </div>
+            {
+                hideCartDropdown ?
+                null :
+                <CartDropdown />                
+            }
+
+            
         </div>
     )
 }
 
 const mapStateToProps = (state) => ({
-    currentUser: state.user.currentUser
+    currentUser: state.user.currentUser,
+    hideCartDropdown: state.cart.hidden
 })
 
 export default connect(mapStateToProps)(Header);
