@@ -15,3 +15,14 @@ export const addItemToCart = (cartItems, itemToAdd) => {
     return newList;
 }
  
+export const removeItemFromCart = (cartItems, itemToRemove) => {
+    let newList = [];
+    cartItems.forEach(item => {
+        if(item.id === itemToRemove.id && item.quantity > 1) {
+            newList.push({...item, quantity: item.quantity - 1})
+        } else if(item.id !== itemToRemove.id) {
+            newList.push({...item})
+        }
+    });
+    return newList;
+}
