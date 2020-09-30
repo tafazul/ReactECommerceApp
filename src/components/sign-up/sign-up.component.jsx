@@ -1,5 +1,5 @@
 import React from 'react';
-import { auth } from '../../firebase/firebase.utils';
+import { auth, createUserProfile } from '../../firebase/firebase.utils';
 import CustomButton from '../custom-button/custom-button.component';
 import FormInput from '../form-input/form-input.component';
 import './sign-up.styles.scss';
@@ -14,14 +14,14 @@ class SignUp extends React.Component {
 
     handleSubmit = async (e) => {
         e.preventDefault();
-        const { email, password, confirmPassword} = this.state;
+        const { displayName, email, password, confirmPassword} = this.state;
         if(password !== confirmPassword) {
             alert('passwords did not match');
             return;
         }
         try {
-             await auth.createUserWithEmailAndPassword(email, password);
-            // await createUserProfile(user, { displayName } );
+             const user = await auth.createUserWithEmailAndPassword(email, password);
+             await createUserProfile(user, { displayName } );
              
         } catch(error) {
             console.log('error while signing up:' + error.message);

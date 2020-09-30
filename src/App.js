@@ -5,11 +5,13 @@ import  {Switch, Route, Redirect } from 'react-router-dom';
 import ShopPage from './pages/shop/shop.component';
 import Header from './components/header/header.component';
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up-page/sign-in-and-sign-up-page.component';
-import {auth, createUserProfile} from './firebase/firebase.utils';
+import {addCollectionAndDocuments, auth, createUserProfile} from './firebase/firebase.utils';
 
 import { setCurrentUser } from './redux/user/user.actions';
 import { connect } from 'react-redux';
 import CheckOut from './components/check-out/check-out.component';
+import { selectShopCollectionForPreview } from './redux/shop/shop.selectors';
+import NormalComponent from './hocs/normal';
 
 
 
@@ -23,27 +25,25 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    const {setCurrentUser} = this.props;
+    const {setCurrentUser, collectionsArray} = this.props;
     this.firebaseSubscription = auth.onAuthStateChanged(async (userAuth) => {
       if(userAuth) {
+        if(!userAuth.displayName) {
+          return;
+        }
         const userRef = await createUserProfile(userAuth);
         userRef.onSnapshot(snapshot => {
           setCurrentUser({
             id: snapshot.id,
             ...snapshot.data()
           });
-          // this.setState({
-          //   currentUser: {
-              
-          //   }
-          // }, () => {
-          //   console.log(this.state);
-          // })
         });
       } else {
         setCurrentUser(null);
       }
+      
     })
+    // addCollectionAndDocuments('collections', collectionsArray.map(({title, items}) => ({title, items}) ));
   }
 
   render() {
@@ -55,6 +55,7 @@ class App extends React.Component {
           <Route path='/shop' component={ShopPage} />
           <Route exact path='/checkout' component={CheckOut} />
           <Route exact path='/signin' render={ () => this.props.currentUser ? (<Redirect to='/' />) : (<SignInAndSignUpPage />) } />
+          <Route exact path='/hoc' component={NormalComponent} />
         </Switch>
        
       </div>
@@ -62,8 +63,9 @@ class App extends React.Component {
   }
 }
 
-const mapStateToProps = ({user}) => ({
-  currentUser : user.currentUser
+const mapStateToProps = (state) => ({
+  currentUser : state.user.currentUser,
+  collectionsArray: selectShopCollectionForPreview(state)
 })
 
 const mapDispatchToProps = dispatch => ({
